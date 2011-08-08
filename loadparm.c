@@ -144,6 +144,8 @@ typedef struct {
 	char *syslog_tag;
 	char *temp_dir;
 	char *uid;
+	char *service_principal;
+	char *keytab_file;
 
 	/* Each _EXP var tracks if the associated char* var has been expanded yet or not. */
 	BOOL auth_users_EXP;
@@ -191,6 +193,7 @@ typedef struct {
 	BOOL transfer_logging;
 	BOOL use_chroot;
 	BOOL write_only;
+	BOOL use_gssapi;
 } local_vars;
 
 /* This structure describes the global variables (g) as well as the globally
@@ -304,6 +307,7 @@ static const all_vars Defaults = {
  /* transfer_logging; */	False,
  /* use_chroot; */		True,
  /* write_only; */		False,
+ /* use_gssapi; */		False,
  }
 };
 
@@ -445,6 +449,7 @@ static struct parm_struct parm_table[] =
  {"uid",               P_STRING, P_LOCAL, &Vars.l.uid,                 NULL,0},
  {"use chroot",        P_BOOL,   P_LOCAL, &Vars.l.use_chroot,          NULL,0},
  {"write only",        P_BOOL,   P_LOCAL, &Vars.l.write_only,          NULL,0},
+ {"use gssapi",        P_BOOL,   P_LOCAL, &Vars.l.use_gssapi,          NULL,0},
  {NULL,                P_BOOL,   P_NONE,  NULL,                        NULL,0}
 };
 
@@ -584,6 +589,7 @@ FN_LOCAL_BOOL(lp_strict_modes, strict_modes)
 FN_LOCAL_BOOL(lp_transfer_logging, transfer_logging)
 FN_LOCAL_BOOL(lp_use_chroot, use_chroot)
 FN_LOCAL_BOOL(lp_write_only, write_only)
+FN_LOCAL_BOOL(lp_use_gssapi, use_gssapi)
 
 /* Assign a copy of v to *s.  Handles NULL strings.  We don't worry
  * about overwriting a malloc'd string because the long-running

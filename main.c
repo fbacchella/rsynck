@@ -1442,7 +1442,7 @@ static int start_client(int argc, char *argv[])
 	 * remote shell command, we need to do the RSYNCD protocol first */
 	if (daemon_over_rsh) {
 		int tmpret;
-		tmpret = start_inband_exchange(f_in, f_out, shell_user, remote_argc, remote_argv);
+		tmpret = start_inband_exchange(f_in, f_out, shell_user, shell_machine, remote_argc, remote_argv);
 		if (tmpret < 0)
 			return tmpret;
 	}

@@ -130,7 +130,7 @@ int start_socket_client(char *host, int remote_argc, char *remote_argv[],
 	setup_iconv();
 #endif
 
-	ret = start_inband_exchange(fd, fd, user, remote_argc, remote_argv);
+	ret = start_inband_exchange(fd, fd, user, host, remote_argc, remote_argv);
 
 	return ret ? ret : client_run(fd, fd, -1, argc, argv);
 }
@@ -209,7 +209,7 @@ static int exchange_protocols(int f_in, int f_out, char *buf, size_t bufsiz, int
 	return 0;
 }
 
-int start_inband_exchange(int f_in, int f_out, const char *user, int argc, char *argv[])
+int start_inband_exchange(int f_in, int f_out, const char *user, const char *host, int argc, char *argv[])
 {
 	int i, modlen;
 	char line[BIGPATHBUFLEN];
@@ -294,7 +294,20 @@ int start_inband_exchange(int f_in, int f_out, const char *user, int argc, char 
 			auth_client(f_out, user, line+18);
 			continue;
 		}
+#ifdef GSSAPI_OPTION
+		if (strcmp(line,"@RSYNCD: GSS") == 0) {
+		    if(auth_gss_client(f_out, host) < 0)
+			    return -1;
+			continue;
+		}
+#else
+		if (strncmp(line,"@RSYNCD: GSS",12) == 0) {
+			rprintf(FERROR, "GSSAPI is not supported\n");
+			    return -1;
+			continue;
+		}
 
+#endif
 		if (strcmp(line,"@RSYNCD: OK") == 0)
 			break;
 
@@ -563,6 +576,11 @@ static int rsync_module(int f_in, int f_out, int i, const char *addr, const char
 	}
 
 	read_only = lp_read_only(i); /* may also be overridden by auth_server() */
+    #ifdef GSSAPI_OPTION
+ 	if(lp_use_gssapi(i))
+ 		auth_user = auth_gss_server(f_in, i, host, addr, "@RSYNCD: GSS");
+ 	else
+    #endif
 	auth_user = auth_server(f_in, f_out, i, host, addr, "@RSYNCD: AUTHREQD ");
 
 	if (!auth_user) {

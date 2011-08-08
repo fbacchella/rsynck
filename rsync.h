@@ -479,6 +479,15 @@ enum delret {
 #define iconv_t int
 #endif
 
+#ifdef GSSAPI_OPTION
+#ifdef HAVE_GSSAPI_GSSAPI_GENERIC_H
+#include <gssapi/gssapi_generic.h>
+#endif
+#ifdef HAVE_GSSAPI_GSSAPI_H
+#include <gssapi/gssapi.h>
+#endif
+#endif
+
 #include <assert.h>
 
 #include "lib/pool_alloc.h"

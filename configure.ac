@@ -696,6 +696,31 @@ if test x"$enable_iconv" != x"no"; then
 	AC_DEFINE(UTF8_CHARSET, "UTF-8", [String to pass to iconv() for the UTF-8 charset.])
 fi
 
+AC_ARG_WITH([gssapi],
+  [AS_HELP_STRING([--with-gssapi],
+    [support GSSAPI authentication @<:@default=check@:>@])],
+  [],
+  [with_gssapi=check])
+
+AH_TEMPLATE([GSSAPI_OPTION],
+[Define if you want GSSAPI authentication. Specifing a value will set the search path.])
+          
+AS_IF([test "x$with_gssapi" != xno],
+    [AC_SEARCH_LIBS([gss_import_name], gss gssapi_krb5 ,
+      [AC_CHECK_HEADERS(gssapi/gssapi_generic.h gssapi/gssapi.h) ]
+      [ AC_DEFINE([GSSAPI_OPTION], [1]) ]
+      ,
+      [if test "x$with_gssapi" = xcheck; then
+        AC_MSG_FAILURE(
+          [--with-gssapi was given, but test for function failed])
+       fi
+       ])
+     ])
+
+if test x"$enable_gssapi" != x"no"; then
+   AC_DEFINE(GSSAPI_OPTION, 1)
+fi
+
 AC_CACHE_CHECK([whether chown() modifies symlinks],rsync_cv_chown_modifies_symlink,[
   AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #if HAVE_UNISTD_H
